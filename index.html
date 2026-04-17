@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Inspection KZJ90</title>
+<style>
+  :root {
+    --ok: #1E7A1E; --ok-bg: #E8F5E9; --ok-border: #81C784;
+    --warn: #B8860B; --warn-bg: #FFF9E6; --warn-border: #FFD54F;
+    --nego: #CC5500; --nego-bg: #FFF0E6; --nego-border: #FFAB76;
+    --refus: #B00000; --refus-bg: #FFEBEB; --refus-border: #EF9A9A;
+    --blue: #1A3A5C; --blue-mid: #2E6DA4; --blue-light: #D6E4F0;
+    --radius: 10px; --shadow: 0 1px 3px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #F0F4F8; color: #1a1a1a; font-size: 15px; }
+
+  #app { max-width: 600px; margin: 0 auto; padding: 0 0 80px; }
+
+  header { background: var(--blue); color: white; padding: 16px 16px 12px; position: sticky; top: 0; z-index: 100; }
+  header h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.2px; }
+  header p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 10px; }
+  .progress-fill { height: 100%; background: #64B5F6; border-radius: 2px; transition: width 0.3s; }
+
+  .section { margin: 12px 10px 0; }
+  .section-header { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: var(--blue); color: white; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; user-select: none; }
+  .section-header.collapsed { border-radius: var(--radius); margin-bottom: 0; }
+  .section-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .section-badge { font-size: 11px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; }
+  .chevron { font-size: 12px; transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .section-body { background: white; border: 1px solid #DCE4EE; border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+
+  .check-item { border-bottom: 1px solid #F0F4F8; }
+  .check-item:last-child { border-bottom: none; }
+
+  .check-header { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px 10px; cursor: pointer; }
+  .check-title { font-size: 14px; font-weight: 600; color: #1A3A5C; flex: 1; line-height: 1.3; }
+  .check-subtitle { font-size: 12px; color: #666; margin-top: 3px; font-style: italic; }
+  .check-icon { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #CBD5E1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 11px; transition: all 0.15s; }
+
+  .options-body { padding: 0 14px 12px; }
+  .option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; margin: 4px 0; border-radius: 8px; border: 1.5px solid #E8EDF2; cursor: pointer; transition: all 0.15s; }
+  .option:active { transform: scale(0.98); }
+  .option-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #CBD5E1; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
+  .option-text { font-size: 13px; line-height: 1.4; color: #333; flex: 1; }
+  .option-impact { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; flex-shrink: 0; margin-top: 2px; }
+
+  .option.sel-ok { background: var(--ok-bg); border-color: var(--ok-border); }
+  .option.sel-ok .option-dot { background: var(--ok); border-color: var(--ok); }
+  .option.sel-aprevoir { background: var(--warn-bg); border-color: var(--warn-border); }
+  .option.sel-aprevoir .option-dot { background: var(--warn); border-color: var(--warn); }
+  .option.sel-negociation { background: var(--nego-bg); border-color: var(--nego-border); }
+  .option.sel-negociation .option-dot { background: var(--nego); border-color: var(--nego); }
+  .option.sel-refus { background: var(--refus-bg); border-color: var(--refus-border); }
+  .option.sel-refus .option-dot { background: var(--refus); border-color: var(--refus); }
+
+  .impact-ok { background: var(--ok-bg); color: var(--ok); }
+  .impact-aprevoir { background: var(--warn-bg); color: var(--warn); }
+  .impact-negociation { background: var(--nego-bg); color: var(--nego); }
+  .impact-refus { background: var(--refus-bg); color: var(--refus); }
+
+  .interp { font-size: 11px; color: #888; font-style: italic; margin-top: 8px; padding: 6px 8px; background: #F8FAFC; border-radius: 6px; border-left: 3px solid #CBD5E1; }
+
+  .check-icon.done-ok { background: var(--ok); border-color: var(--ok); color: white; }
+  .check-icon.done-aprevoir { background: var(--warn); border-color: var(--warn); color: white; }
+  .check-icon.done-negociation { background: var(--nego); border-color: var(--nego); color: white; }
+  .check-icon.done-refus { background: var(--refus); border-color: var(--refus); color: white; }
+
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #DCE4EE; padding: 10px 16px; display: flex; gap: 10px; justify-content: center; }
+  .btn-summary { flex: 1; max-width: 300px; background: var(--blue); color: white; border: none; border-radius: var(--radius); padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-summary:active { opacity: 0.85; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: none; align-items: flex-end; }
+  .modal-overlay.visible { display: flex; }
+  .modal { background: white; border-radius: 20px 20px 0 0; width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 16px 40px; }
+  .modal-handle { width: 36px; height: 4px; background: #CBD5E1; border-radius: 2px; margin: 0 auto 16px; }
+  .modal h2 { font-size: 18px; font-weight: 700; color: var(--blue); margin-bottom: 16px; }
+
+  .verdict { border-radius: var(--radius); padding: 16px; margin-bottom: 16px; text-align: center; }
+  .verdict-label { font-size: 13px; font-weight: 600; opacity: 0.8; }
+  .verdict-main { font-size: 24px; font-weight: 800; margin-top: 4px; }
+  .verdict.v-ok { background: var(--ok-bg); color: var(--ok); }
+  .verdict.v-nego { background: var(--nego-bg); color: var(--nego); }
+  .verdict.v-refus { background: var(--refus-bg); color: var(--refus); }
+
+  .stats-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .stat { flex: 1; border-radius: 8px; padding: 10px 8px; text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 700; }
+  .stat-lbl { font-size: 11px; margin-top: 2px; }
+
+  .summary-section { margin-bottom: 14px; }
+  .summary-section h3 { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .summary-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; margin-bottom: 4px; }
+  .summary-item-name { font-size: 13px; flex: 1; }
+  .summary-item-result { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+  .unchecked { background: #F8FAFC; }
+
+  .close-modal { width: 100%; margin-top: 16px; background: #F0F4F8; border: none; border-radius: var(--radius); padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; color: #444; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Inspection KZJ90 — Toyota Land Cruiser</h1>
+    <p id="progress-text">0 / 0 points vérifiés</p>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </header>
+  <div id="sections-container"></div>
+</div>
+
+<div class="bottom-bar">
+  <button class="btn-summary" onclick="openSummary()">Voir l'avis global</button>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeIfOutside(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-handle"></div>
+    <div id="modal-body"></div>
+    <button class="close-modal" onclick="closeSummary()">Fermer</button>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  {
+    id: "chassis",
+    title: "Chassis & Structure",
+    emoji: "🔩",
+    items: [
+      {
+        id: "longeron_av",
+        title: "Longerons avant",
+        action: "Gratter au tournevis sur toute la longueur du longeron avant, sous le moteur",
+        options: [
+          { text: "Peinture intacte, métal sain — lame rebondit", impact: "ok" },
+          { text: "Rouille de surface, lame ne pénètre pas le métal", impact: "aprevoir" },
+          { text: "Lame s'enfonce partiellement dans le métal", impact: "negociation" },
+          { text: "Perforation visible ou métal cède sous pression du pouce", impact: "refus" },
+        ],
+        interp: "Sur KZJ90, la corrosion commence par les flancs bas du longeron avant. Résistance au grattage = seul critère fiable."
+      },
+      {
+        id: "longeron_ar",
+        title: "Longerons arrière",
+        action: "Gratter au tournevis près des fixations de ressorts et traverse remorquage",
+        options: [
+          { text: "Surface homogène, aucune soudure visible, métal sain", impact: "ok" },
+          { text: "Rouille légère, grattage solide, pas de déformation", impact: "aprevoir" },
+          { text: "Soudures récentes ou réparations visibles sur le longeron", impact: "negociation" },
+          { text: "Déformation, boursouflure ou métal creux au marteau", impact: "refus" },
+        ],
+        interp: "Toute soudure de réparation sur longeron = historique d'accident ou corrosion structurelle. Refus ou expertise obligatoire."
+      },
+      {
+        id: "traverse_ar",
+        title: "Traverse arrière / remorquage",
+        action: "Frapper la traverse de remorquage avec le marteau plastique sur ses deux faces et angles",
+        options: [
+          { text: "Son clair et plein, aucune déformation", impact: "ok" },
+          { text: "Son légèrement mat, rouille de surface sans impact rigidité", impact: "aprevoir" },
+          { text: "Son creux sur zone localisée, rouille pénétrante", impact: "negociation" },
+          { text: "Son creux sur plus de 30% de la traverse ou déformation perceptible", impact: "refus" },
+        ],
+        interp: "Son creux = métal rongé de l'intérieur. Irréparable sans remplacement complet."
+      },
+      {
+        id: "soubassement",
+        title: "Soubassement & seuils de portes",
+        action: "S'allonger sous le véhicule, lampe torche dans chaque passage de roue. Gratter les seuils de portes par le bas",
+        options: [
+          { text: "Protection homogène, aucune perforation, métal sain partout", impact: "ok" },
+          { text: "Rouille de surface sur zones non structurelles, métal sain dessous", impact: "aprevoir" },
+          { text: "Métal visible sans protection, rouille pénétrante sur plus de 30 cm²", impact: "negociation" },
+          { text: "Perforation visible en soubassement ou seuil traversé par la rouille", impact: "refus" },
+        ],
+        interp: "Seuils perforés = structure compromise. Sur KZJ90, les seuils porteurs participent à la rigidité de caisse."
+      },
+      {
+        id: "berceau",
+        title: "Fixations berceau moteur",
+        action: "Localiser les 4 silent-blocs du berceau moteur, tirer latéralement sur le berceau à deux mains",
+        options: [
+          { text: "Aucun mouvement, boulons non corrodés", impact: "ok" },
+          { text: "Micro-jeu sans bruit, caoutchouc légèrement fissuré", impact: "aprevoir" },
+          { text: "Jeu de 5 mm et plus, bruit de frottement métal/métal", impact: "negociation" },
+          { text: "Berceau mobile visuellement, boulonnerie cisaillée ou absente", impact: "refus" },
+        ],
+        interp: "Jeu anormal = risque de désalignement moteur/transmission."
+      },
+    ]
+  },
+  {
+    id: "carrosserie",
+    title: "Carrosserie & Vitrages",
+    emoji: "🔍",
+    items: [
+      {
+        id: "alignement",
+        title: "Alignement des panneaux",
+        action: "Se positionner à 3 mètres, observer les jours de carrosserie en plongeant l'angle de vue",
+        options: [
+          { text: "Jours homogènes, parallèles et réguliers sur tout le pourtour", impact: "ok" },
+          { text: "Un jour légèrement irrégulier (moins de 2 mm) sur une zone", impact: "aprevoir" },
+          { text: "Différence de 3 mm et plus entre deux panneaux adjacents", impact: "negociation" },
+          { text: "Jours franchement inégaux sur plusieurs côtés ou panneau rentrant/sortant", impact: "refus" },
+        ],
+        interp: "Jours irréguliers sur plusieurs zones = véhicule accidenté et recalibré."
+      },
+      {
+        id: "aimant",
+        title: "Test aimant (mastic)",
+        action: "Passer un aimant sur chaque panneau — s'il adhère moins ou se détache : mastic sous peinture",
+        options: [
+          { text: "Aimant adhère uniformément sur tous les panneaux", impact: "ok" },
+          { text: "Légère variation sur un panneau isolé (protections plastiques)", impact: "aprevoir" },
+          { text: "Aimant ne tient plus sur zone localisée moins de 20 cm", impact: "negociation" },
+          { text: "Aimant glisse sur zone large ou plusieurs zones distinctes", impact: "refus" },
+        ],
+        interp: "Zone sans adhérence = mastic en quantité. Limite légale : 3 mm. Zone large = réparation dissimulée importante."
+      },
+      {
+        id: "vitrages",
+        title: "Vitrages",
+        action: "Inspecter chaque vitrage à contre-jour : impacts, fissures, traces de sablage",
+        options: [
+          { text: "Aucun impact, aucune fissure, pas de sablage", impact: "ok" },
+          { text: "Micro-impact hors champ de conduite, pas d'amorce de fissure", impact: "aprevoir" },
+          { text: "Impact dans le champ de conduite ou amorce de fissure", impact: "negociation" },
+          { text: "Fissure propagée ou sablage rendant la visibilité insuffisante", impact: "refus" },
+        ],
+        interp: "Fissure propagée = remplacement pare-brise obligatoire. Sablage = contrôle technique non conforme."
+      },
+    ]
+  },
+  {
+    id: "mecanique",
+    title: "Mécanique (contrôlable sur place)",
+    emoji: "⚙️",
+    items: [
+      {
+        id: "demarrage",
+        title: "Démarrage à froid",
+        action: "Arriver avant le vendeur. Poser la main sur le capot pour confirmer moteur froid. Démarrer",
+        options: [
+          { text: "Démarrage immédiat, régime stable en moins de 10 secondes", impact: "ok" },
+          { text: "Démarrage en 3-5 secondes, régime instable puis stabilisation", impact: "aprevoir" },
+          { text: "Démarrage en plus de 5 secondes, fumée blanche épaisse plus d'1 minute", impact: "negociation" },
+          { text: "Non-démarrage ou fumée blanche permanente après montée en température", impact: "refus" },
+        ],
+        interp: "Fumée blanche persistante au-delà de 3 minutes = entrée d'eau dans la chambre de combustion."
+      },
+      {
+        id: "huile",
+        title: "Niveau et état huile moteur",
+        action: "Sortir la jauge, essuyer sur papier blanc, remettre, ressortir. Observer couleur, consistance, mousse",
+        options: [
+          { text: "Huile ambrée/dorée, niveau correct, aucune mousse", impact: "ok" },
+          { text: "Huile noire mais fluide, niveau correct, pas de mousse", impact: "aprevoir" },
+          { text: "Huile très noire et épaisse ou niveau sous le MIN", impact: "negociation" },
+          { text: "Mousse marron chocolat sur la jauge ou dans le goulot de remplissage", impact: "refus" },
+        ],
+        interp: "Mousse = émulsion huile/eau = joint de culasse percé. Signe diagnostique le plus fiable du 1KZ-TE."
+      },
+      {
+        id: "refroid",
+        title: "Circuit de refroidissement",
+        action: "Moteur FROID : ouvrir vase d'expansion, observer niveau et couleur. Moteur chaud : sentir le goulot",
+        options: [
+          { text: "Niveau correct, liquide rose/vert clair transparent, aucune odeur", impact: "ok" },
+          { text: "Niveau correct, liquide marron ou trouble sans odeur particulière", impact: "aprevoir" },
+          { text: "Niveau sous le MIN ou film huileux visible en surface", impact: "negociation" },
+          { text: "Odeur de gaz d'échappement au goulot ou bulles rythmées (moteur chaud)", impact: "refus" },
+        ],
+        interp: "Film huileux ou odeur de gaz = joint de culasse percé. Point critique absolu sur le 1KZ-TE."
+      },
+      {
+        id: "fumees",
+        title: "Fumées à l'accélération",
+        action: "Monter à 2500 tr/min en stationnaire, maintenir 5 secondes, relâcher brutalement. Observer l'échappement",
+        options: [
+          { text: "Aucune fumée visible à la relâche", impact: "ok" },
+          { text: "Légère fumée grise disparaissant en 2 secondes", impact: "aprevoir" },
+          { text: "Fumée noire persistante plus de 5 secondes", impact: "negociation" },
+          { text: "Fumée bleue persistante (huile dans la combustion)", impact: "refus" },
+        ],
+        interp: "Fumée noire = injection mal réglée ou injecteurs. Fumée bleue = consommation d'huile, révision moteur imminente."
+      },
+      {
+        id: "amortisseurs",
+        title: "Amortisseurs",
+        action: "Peser de tout son poids sur chaque aile d'angle, relâcher d'un coup. Compter les oscillations",
+        options: [
+          { text: "Revient en position et s'arrête en 1 oscillation maximum", impact: "ok" },
+          { text: "Oscille 2 fois avant de s'immobiliser", impact: "aprevoir" },
+          { text: "Oscille 3 fois ou plus avant de s'immobiliser", impact: "negociation" },
+          { text: "Fuite d'huile visible sur le corps de l'amortisseur", impact: "refus" },
+        ],
+        interp: "Plus de 2 oscillations = amortisseur fatigué. Les 4 se remplacent par paires."
+      },
+      {
+        id: "rotules",
+        title: "Rotules & biellettes de direction",
+        action: "Roue avant levée au cric : saisir à 9h/3h et tirer-pousser, puis à 6h/12h. Mesurer le jeu perçu",
+        options: [
+          { text: "Aucun jeu dans les deux axes", impact: "ok" },
+          { text: "Micro-jeu à 9h-3h inférieur à 1 mm, rien à 6h-12h", impact: "aprevoir" },
+          { text: "Jeu perceptible de 2-3 mm dans au moins un axe", impact: "negociation" },
+          { text: "Jeu supérieur à 3 mm ou bruit de craquement métal", impact: "refus" },
+        ],
+        interp: "Jeu à 9h-3h = rotule de direction. Jeu à 6h-12h = rotule de suspension. Sur KZJ90, rotules intégrées au moyeu = coûteuses."
+      },
+      {
+        id: "freinage",
+        title: "Freinage (test sur route)",
+        action: "À 50 km/h sur route sèche et droite : freiner fort jusqu'à l'arrêt. Observer trajectoire et pédale",
+        options: [
+          { text: "Arrêt en ligne droite, pédale ferme avec résistance progressive", impact: "ok" },
+          { text: "Légère dérive de moins de 30 cm, pédale ferme", impact: "aprevoir" },
+          { text: "Dérive de 50 cm et plus ou pédale molle en fin de course", impact: "negociation" },
+          { text: "Pédale au plancher, vibration forte ou dérive importante", impact: "refus" },
+        ],
+        interp: "Pédale molle = air dans le circuit ou maître-cylindre défaillant. Vibration = disques voilés."
+      },
+      {
+        id: "cardans_av",
+        title: "Cardans avant",
+        action: "Braquage à fond en marche lente dans les deux sens (parking). Fenêtre ouverte, écouter chaque roue",
+        options: [
+          { text: "Aucun claquement, rotation silencieuse en tout-braquage", impact: "ok" },
+          { text: "Léger craquement non reproductible à un seul sens", impact: "aprevoir" },
+          { text: "Claquement clair reproductible à chaque rotation en braquage", impact: "negociation" },
+          { text: "Claquement violent ou vibration perceptible au volant", impact: "refus" },
+        ],
+        interp: "Claquement en braquage = cardan en fin de vie. Pièce disponible, à chiffrer avant négociation."
+      },
+    ]
+  },
+  {
+    id: "admin",
+    title: "Administratif",
+    emoji: "📄",
+    items: [
+      {
+        id: "cg",
+        title: "Carte grise & VIN",
+        action: "Comparer VIN carte grise / plaque tableau de bord / gravure châssis (longeron avant gauche) caractère par caractère",
+        options: [
+          { text: "3 sources identiques, gravure d'origine non retouchée", impact: "ok" },
+          { text: "2 sources identiques, plaque TB légèrement décollée mais lisible", impact: "aprevoir" },
+          { text: "Une différence de caractère entre deux sources", impact: "negociation" },
+          { text: "Gravure châssis surchargée, effacée ou ne correspond pas à la carte grise", impact: "refus" },
+        ],
+        interp: "Toute différence = véhicule potentiellement volé ou reconstitué. Arrêter la transaction."
+      },
+      {
+        id: "ct",
+        title: "Contrôle technique",
+        action: "Lire le rapport complet (pas uniquement la vignette). Pointer les défauts majeurs et contre-visites",
+        options: [
+          { text: "CT de moins de 6 mois, aucun défaut majeur", impact: "ok" },
+          { text: "CT de 6 à 18 mois, défauts mineurs uniquement", impact: "aprevoir" },
+          { text: "CT de plus de 18 mois ou contre-visite passée récemment", impact: "negociation" },
+          { text: "Pas de CT ou défaut majeur non résolu (châssis, freinage, direction)", impact: "refus" },
+        ],
+        interp: "Contre-visite récente = problème 'corrigé' en urgence. Vérifier cohérence avec état constaté."
+      },
+      {
+        id: "km",
+        title: "Cohérence kilométrique",
+        action: "Demander les factures d'entretien. Croiser les km notés sur factures avec le compteur actuel",
+        options: [
+          { text: "Factures présentes, kilométrages croissants et cohérents", impact: "ok" },
+          { text: "Lacunes mais kilométrages des factures présentes cohérents", impact: "aprevoir" },
+          { text: "Kilométrage d'une facture supérieur au compteur actuel", impact: "refus" },
+          { text: "Absence totale de factures sur véhicule à plus de 150 000 km", impact: "refus" },
+        ],
+        interp: "Kilométrage facture > compteur = compteur trafiqué. Refus immédiat."
+      },
+    ]
+  }
+];
+
+const state = {};
+DATA.forEach(s => s.items.forEach(item => { state[item.id] = null; }));
+
+const impactLabels = { ok: "OK", aprevoir: "À prévoir", negociation: "Négociation", refus: "REFUS" };
+const impactPriority = { ok: 0, aprevoir: 1, negociation: 2, refus: 3 };
+
+function render() {
+  const container = document.getElementById("sections-container");
+  container.innerHTML = "";
+  DATA.forEach((section, si) => {
+    const div = document.createElement("div");
+    div.className = "section";
+    const checked = section.items.filter(i => state[i.id] !== null);
+    const badge = `${checked.length}/${section.items.length}`;
+    const open = section.items.some(i => state[i.id] === null);
+    div.innerHTML = `
+      <div class="section-header ${open ? '' : 'collapsed'}" onclick="toggleSection('sec-body-${si}', this)">
+        <span class="section-title">${section.title}</span>
+        <span class="section-badge">${badge}</span>
+        <span class="chevron ${open ? 'open' : ''}">▼</span>
+      </div>
+      <div class="section-body" id="sec-body-${si}" style="display:${open ? 'block' : 'none'}">
+        ${section.items.map(item => renderItem(item)).join('')}
+      </div>`;
+    container.appendChild(div);
+  });
+  updateProgress();
+}
+
+function renderItem(item) {
+  const sel = state[item.id];
+  const iconClass = sel ? `done-${sel}` : '';
+  const iconChar = sel ? '✓' : '';
+  return `<div class="check-item" id="item-${item.id}">
+    <div class="check-header" onclick="toggleItem('opts-${item.id}')">
+      <div class="check-icon ${iconClass}">${iconChar}</div>
+      <div style="flex:1">
+        <div class="check-title">${item.title}</div>
+        <div class="check-subtitle">${item.action}</div>
+      </div>
+    </div>
+    <div class="options-body" id="opts-${item.id}" style="display:none">
+      ${item.options.map((opt, i) => `
+        <div class="option ${sel === opt.impact && state[item.id] !== null && item.options.findIndex(o=>o.impact===sel)===i ? 'sel-'+opt.impact : (sel && item.options.findIndex(o=>o.impact===sel)===i ? 'sel-'+opt.impact : '')}"
+             onclick="selectOption('${item.id}', '${opt.impact}', ${i})" id="opt-${item.id}-${i}">
+          <div class="option-dot"></div>
+          <div class="option-text">${opt.text}</div>
+          <div class="option-impact impact-${opt.impact}">${impactLabels[opt.impact]}</div>
+        </div>`).join('')}
+      <div class="interp">${item.interp}</div>
+    </div>
+  </div>`;
+}
+
+const selectedOptions = {};
+
+function selectOption(itemId, impact, optIdx) {
+  selectedOptions[itemId] = optIdx;
+  state[itemId] = impact;
+  const item = DATA.flatMap(s => s.items).find(i => i.id === itemId);
+  const iconEl = document.querySelector(`#item-${itemId} .check-icon`);
+  iconEl.className = `check-icon done-${impact}`;
+  iconEl.textContent = '✓';
+  item.options.forEach((opt, i) => {
+    const el = document.getElementById(`opt-${itemId}-${i}`);
+    if (!el) return;
+    el.className = 'option' + (i === optIdx ? ` sel-${impact}` : '');
+    el.querySelector('.option-dot').style.background = (i === optIdx) ? getImpactColor(impact) : '';
+    el.querySelector('.option-dot').style.borderColor = (i === optIdx) ? getImpactColor(impact) : '';
+  });
+  setTimeout(() => {
+    document.getElementById(`opts-${itemId}`).style.display = 'none';
+  }, 300);
+  updateProgress();
+}
+
+function getImpactColor(impact) {
+  return { ok: '#1E7A1E', aprevoir: '#B8860B', negociation: '#CC5500', refus: '#B00000' }[impact];
+}
+
+function toggleItem(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleSection(bodyId, header) {
+  const body = document.getElementById(bodyId);
+  const chev = header.querySelector('.chevron');
+  const visible = body.style.display !== 'none';
+  body.style.display = visible ? 'none' : 'block';
+  chev.className = 'chevron' + (visible ? '' : ' open');
+  header.className = 'section-header' + (visible ? ' collapsed' : '');
+}
+
+function updateProgress() {
+  const total = Object.keys(state).length;
+  const done = Object.values(state).filter(v => v !== null).length;
+  document.getElementById('progress-text').textContent = `${done} / ${total} points vérifiés`;
+  document.getElementById('prog-fill').style.width = `${Math.round(done / total * 100)}%`;
+}
+
+function openSummary() {
+  const modal = document.getElementById('modal');
+  const body = document.getElementById('modal-body');
+
+  const allItems = DATA.flatMap(s => s.items.map(i => ({ ...i, sectionTitle: s.title })));
+  const checked = allItems.filter(i => state[i.id] !== null);
+  const total = allItems.length;
+  const counts = { ok: 0, aprevoir: 0, negociation: 0, refus: 0 };
+  checked.forEach(i => counts[state[i.id]]++);
+
+  let verdictClass, verdictText, verdictSub;
+  const worst = checked.reduce((acc, i) => Math.max(acc, impactPriority[state[i.id]]), 0);
+  if (counts.refus > 0) {
+    verdictClass = 'v-refus'; verdictText = 'REFUS'; verdictSub = `${counts.refus} point${counts.refus > 1 ? 's' : ''} rédhibitoire${counts.refus > 1 ? 's' : ''}`;
+  } else if (counts.negociation > 0) {
+    verdictClass = 'v-nego'; verdictText = 'À NÉGOCIER'; verdictSub = `${counts.negociation} point${counts.negociation > 1 ? 's' : ''} de négociation`;
+  } else if (counts.aprevoir > 0) {
+    verdictClass = 'v-nego'; verdictText = 'ACCEPTABLE'; verdictSub = `${counts.aprevoir} point${counts.aprevoir > 1 ? 's' : ''} à prévoir`;
+  } else if (checked.length === 0) {
+    verdictClass = 'v-nego'; verdictText = 'EN COURS'; verdictSub = 'Aucun point coché';
+  } else {
+    verdictClass = 'v-ok'; verdictText = 'OK'; verdictSub = 'Tous les points vérifiés sont corrects';
+  }
+
+  const refusItems = checked.filter(i => state[i.id] === 'refus');
+  const negoItems = checked.filter(i => state[i.id] === 'negociation');
+  const apreItems = checked.filter(i => state[i.id] === 'aprevoir');
+  const okItems = checked.filter(i => state[i.id] === 'ok');
+  const unchecked = allItems.filter(i => state[i.id] === null);
+
+  const renderGroup = (items, impact) => items.map(i => {
+    const optIdx = selectedOptions[i.id];
+    const optText = optIdx !== undefined ? i.options[optIdx].text : '';
+    return `<div class="summary-item">
+      <div style="flex:1">
+        <div class="summary-item-name" style="font-weight:600">${i.title}</div>
+        ${optText ? `<div style="font-size:12px;color:#666;margin-top:2px">${optText}</div>` : ''}
+      </div>
+      <div class="summary-item-result impact-${impact}">${impactLabels[impact]}</div>
+    </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <h2>Avis global — KZJ90</h2>
+    <div class="verdict ${verdictClass}">
+      <div class="verdict-label">${checked.length} / ${total} points vérifiés</div>
+      <div class="verdict-main">${verdictText}</div>
+      <div style="font-size:13px;margin-top:4px;opacity:0.85">${verdictSub}</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat" style="background:var(--refus-bg);color:var(--refus)">
+        <div class="stat-num">${counts.refus}</div><div class="stat-lbl">Refus</div>
+      </div>
+      <div class="stat" style="background:var(--nego-bg);color:var(--nego)">
+        <div class="stat-num">${counts.negociation}</div><div class="stat-lbl">Négo</div>
+      </div>
+      <div class="stat" style="background:var(--warn-bg);color:var(--warn)">
+        <div class="stat-num">${counts.aprevoir}</div><div class="stat-lbl">À prévoir</div>
+      </div>
+      <div class="stat" style="background:var(--ok-bg);color:var(--ok)">
+        <div class="stat-num">${counts.ok}</div><div class="stat-lbl">OK</div>
+      </div>
+    </div>
+    ${refusItems.length ? `<div class="summary-section"><h3>Points rédhibitoires</h3>${renderGroup(refusItems, 'refus')}</div>` : ''}
+    ${negoItems.length ? `<div class="summary-section"><h3>Points à négocier</h3>${renderGroup(negoItems, 'negociation')}</div>` : ''}
+    ${apreItems.length ? `<div class="summary-section"><h3>À prévoir</h3>${renderGroup(apreItems, 'aprevoir')}</div>` : ''}
+    ${okItems.length ? `<div class="summary-section"><h3>Corrects</h3>${renderGroup(okItems, 'ok')}</div>` : ''}
+    ${unchecked.length ? `<div class="summary-section"><h3>Non vérifiés (${unchecked.length})</h3>${unchecked.map(i => `<div class="summary-item unchecked"><div class="summary-item-name">${i.title}</div><div class="summary-item-result" style="background:#E8EDF2;color:#888">—</div></div>`).join('')}</div>` : ''}
+  `;
+
+  modal.classList.add('visible');
+}
+
+function closeSummary() {
+  document.getElementById('modal').classList.remove('visible');
+}
+function closeIfOutside(e) {
+  if (e.target === document.getElementById('modal')) closeSummary();
+}
+
+render();
+</script>
+</body>
+</html>
