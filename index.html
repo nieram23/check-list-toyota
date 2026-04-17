@@ -6,566 +6,484 @@
 <title>Inspection KZJ90</title>
 <style>
   :root {
-    --ok: #1E7A1E; --ok-bg: #E8F5E9; --ok-border: #81C784;
-    --warn: #B8860B; --warn-bg: #FFF9E6; --warn-border: #FFD54F;
-    --nego: #CC5500; --nego-bg: #FFF0E6; --nego-border: #FFAB76;
-    --refus: #B00000; --refus-bg: #FFEBEB; --refus-border: #EF9A9A;
-    --blue: #1A3A5C; --blue-mid: #2E6DA4; --blue-light: #D6E4F0;
-    --radius: 10px; --shadow: 0 1px 3px rgba(0,0,0,0.10);
+    --ok:#1E7A1E;--ok-bg:#E8F5E9;--ok-b:#81C784;
+    --ap:#9A7000;--ap-bg:#FFF8E1;--ap-b:#FFD54F;
+    --ng:#CC5500;--ng-bg:#FFF0E6;--ng-b:#FFAB76;
+    --rf:#B00000;--rf-bg:#FFEBEB;--rf-b:#EF9A9A;
+    --blue:#1A3A5C;--blue-mid:#2E6DA4;--blue-light:#D6E4F0;
+    --r:10px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #F0F4F8; color: #1a1a1a; font-size: 15px; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#EEF2F7;color:#1a1a1a;font-size:15px;}
+  #app{max-width:600px;margin:0 auto;padding:0 0 90px;}
 
-  #app { max-width: 600px; margin: 0 auto; padding: 0 0 80px; }
+  header{background:var(--blue);color:white;padding:14px 14px 10px;position:sticky;top:0;z-index:100;}
+  header h1{font-size:16px;font-weight:700;}
+  header p{font-size:11px;opacity:0.7;margin-top:2px;}
+  .prog-bar{height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin-top:8px;}
+  .prog-fill{height:100%;background:#64B5F6;border-radius:2px;transition:width .3s;}
 
-  header { background: var(--blue); color: white; padding: 16px 16px 12px; position: sticky; top: 0; z-index: 100; }
-  header h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.2px; }
-  header p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
-  .progress-bar { height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 10px; }
-  .progress-fill { height: 100%; background: #64B5F6; border-radius: 2px; transition: width 0.3s; }
+  .mode-toggle{display:flex;margin:10px 10px 0;gap:6px;}
+  .mode-btn{flex:1;padding:9px 0;border:1.5px solid var(--blue-mid);border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;background:white;color:var(--blue);}
+  .mode-btn.active{background:var(--blue);color:white;border-color:var(--blue);}
 
-  .section { margin: 12px 10px 0; }
-  .section-header { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: var(--blue); color: white; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; user-select: none; }
-  .section-header.collapsed { border-radius: var(--radius); margin-bottom: 0; }
-  .section-title { font-size: 14px; font-weight: 600; flex: 1; }
-  .section-badge { font-size: 11px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; }
-  .chevron { font-size: 12px; transition: transform 0.2s; }
-  .chevron.open { transform: rotate(180deg); }
+  .section{margin:10px 10px 0;}
+  .sec-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--blue);color:white;border-radius:var(--r) var(--r) 0 0;cursor:pointer;user-select:none;}
+  .sec-head.closed{border-radius:var(--r);margin-bottom:0;}
+  .sec-title{font-size:13px;font-weight:700;flex:1;}
+  .sec-badge{font-size:11px;background:rgba(255,255,255,0.2);padding:2px 7px;border-radius:10px;}
+  .critiq-badge{font-size:10px;background:#E53935;padding:1px 6px;border-radius:6px;font-weight:700;}
+  .chev{font-size:11px;transition:transform .2s;}
+  .chev.o{transform:rotate(180deg);}
 
-  .section-body { background: white; border: 1px solid #DCE4EE; border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+  .sec-body{background:white;border:1px solid #D0D9E6;border-top:none;border-radius:0 0 var(--r) var(--r);}
 
-  .check-item { border-bottom: 1px solid #F0F4F8; }
-  .check-item:last-child { border-bottom: none; }
+  .item{border-bottom:1px solid #F0F4F8;}
+  .item:last-child{border-bottom:none;}
+  .item-head{display:flex;align-items:flex-start;gap:10px;padding:11px 12px 9px;cursor:pointer;}
+  .item-title{font-size:14px;font-weight:600;color:#1A3A5C;flex:1;line-height:1.3;}
+  .item-action{font-size:12px;color:#666;margin-top:3px;line-height:1.4;}
+  .item-weight{font-size:10px;padding:1px 6px;border-radius:5px;flex-shrink:0;margin-top:2px;font-weight:700;}
+  .w-crit{background:#FFE5E5;color:#B00000;}
+  .w-cost{background:#FFF0E6;color:#CC5500;}
+  .w-fin{background:#F0F4F8;color:#556;}
 
-  .check-header { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px 10px; cursor: pointer; }
-  .check-title { font-size: 14px; font-weight: 600; color: #1A3A5C; flex: 1; line-height: 1.3; }
-  .check-subtitle { font-size: 12px; color: #666; margin-top: 3px; font-style: italic; }
-  .check-icon { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #CBD5E1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 11px; transition: all 0.15s; }
+  .icon{width:22px;height:22px;border-radius:50%;border:2px solid #CBD5E1;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:11px;transition:all .15s;}
+  .icon.ok{background:var(--ok);border-color:var(--ok);color:white;}
+  .icon.aprevoir{background:var(--ap);border-color:var(--ap);color:white;}
+  .icon.negociation{background:var(--ng);border-color:var(--ng);color:white;}
+  .icon.refus{background:var(--rf);border-color:var(--rf);color:white;}
 
-  .options-body { padding: 0 14px 12px; }
-  .option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; margin: 4px 0; border-radius: 8px; border: 1.5px solid #E8EDF2; cursor: pointer; transition: all 0.15s; }
-  .option:active { transform: scale(0.98); }
-  .option-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #CBD5E1; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
-  .option-text { font-size: 13px; line-height: 1.4; color: #333; flex: 1; }
-  .option-impact { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; flex-shrink: 0; margin-top: 2px; }
+  .opts{padding:0 12px 10px;}
+  .opt{display:flex;align-items:flex-start;gap:9px;padding:8px 9px;margin:3px 0;border-radius:8px;border:1.5px solid #E8EDF2;cursor:pointer;transition:all .15s;}
+  .opt:active{transform:scale(0.98);}
+  .opt-dot{width:17px;height:17px;border-radius:50%;border:2px solid #CBD5E1;flex-shrink:0;margin-top:2px;}
+  .opt-text{font-size:13px;line-height:1.4;color:#333;flex:1;}
+  .opt-imp{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;flex-shrink:0;margin-top:2px;}
+  .opt.s-ok{background:var(--ok-bg);border-color:var(--ok-b);}
+  .opt.s-ok .opt-dot{background:var(--ok);border-color:var(--ok);}
+  .opt.s-aprevoir{background:var(--ap-bg);border-color:var(--ap-b);}
+  .opt.s-aprevoir .opt-dot{background:var(--ap);border-color:var(--ap);}
+  .opt.s-negociation{background:var(--ng-bg);border-color:var(--ng-b);}
+  .opt.s-negociation .opt-dot{background:var(--ng);border-color:var(--ng);}
+  .opt.s-refus{background:var(--rf-bg);border-color:var(--rf-b);}
+  .opt.s-refus .opt-dot{background:var(--rf);border-color:var(--rf);}
+  .imp-ok{background:var(--ok-bg);color:var(--ok);}
+  .imp-aprevoir{background:var(--ap-bg);color:var(--ap);}
+  .imp-negociation{background:var(--ng-bg);color:var(--ng);}
+  .imp-refus{background:var(--rf-bg);color:var(--rf);}
 
-  .option.sel-ok { background: var(--ok-bg); border-color: var(--ok-border); }
-  .option.sel-ok .option-dot { background: var(--ok); border-color: var(--ok); }
-  .option.sel-aprevoir { background: var(--warn-bg); border-color: var(--warn-border); }
-  .option.sel-aprevoir .option-dot { background: var(--warn); border-color: var(--warn); }
-  .option.sel-negociation { background: var(--nego-bg); border-color: var(--nego-border); }
-  .option.sel-negociation .option-dot { background: var(--nego); border-color: var(--nego); }
-  .option.sel-refus { background: var(--refus-bg); border-color: var(--refus-border); }
-  .option.sel-refus .option-dot { background: var(--refus); border-color: var(--refus); }
+  .interp{font-size:11px;color:#777;font-style:italic;margin-top:7px;padding:5px 8px;background:#F8FAFC;border-radius:6px;border-left:3px solid #CBD5E1;line-height:1.5;}
 
-  .impact-ok { background: var(--ok-bg); color: var(--ok); }
-  .impact-aprevoir { background: var(--warn-bg); color: var(--warn); }
-  .impact-negociation { background: var(--nego-bg); color: var(--nego); }
-  .impact-refus { background: var(--refus-bg); color: var(--refus); }
+  .tip-box{background:#EEF6FF;border:1px solid #B3D4F5;border-radius:8px;padding:9px 11px;margin:8px 10px 0;font-size:12px;color:#1A3A5C;line-height:1.5;}
 
-  .interp { font-size: 11px; color: #888; font-style: italic; margin-top: 8px; padding: 6px 8px; background: #F8FAFC; border-radius: 6px; border-left: 3px solid #CBD5E1; }
+  .bottom{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #DCE4EE;padding:10px 14px;display:flex;gap:8px;}
+  .btn-sum{flex:1;background:var(--blue);color:white;border:none;border-radius:var(--r);padding:13px;font-size:15px;font-weight:700;cursor:pointer;}
+  .btn-sum:active{opacity:.85;}
+  .btn-reset{background:#F0F4F8;color:#666;border:none;border-radius:var(--r);padding:13px 14px;font-size:13px;font-weight:600;cursor:pointer;}
 
-  .check-icon.done-ok { background: var(--ok); border-color: var(--ok); color: white; }
-  .check-icon.done-aprevoir { background: var(--warn); border-color: var(--warn); color: white; }
-  .check-icon.done-negociation { background: var(--nego); border-color: var(--nego); color: white; }
-  .check-icon.done-refus { background: var(--refus); border-color: var(--refus); color: white; }
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;}
+  .overlay.v{display:flex;}
+  .modal{background:white;border-radius:18px 18px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:18px 14px 40px;}
+  .mhandle{width:36px;height:4px;background:#CBD5E1;border-radius:2px;margin:0 auto 14px;}
+  .modal h2{font-size:17px;font-weight:700;color:var(--blue);margin-bottom:14px;}
 
-  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #DCE4EE; padding: 10px 16px; display: flex; gap: 10px; justify-content: center; }
-  .btn-summary { flex: 1; max-width: 300px; background: var(--blue); color: white; border: none; border-radius: var(--radius); padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
-  .btn-summary:active { opacity: 0.85; }
+  .verdict{border-radius:var(--r);padding:14px;margin-bottom:14px;text-align:center;}
+  .verd-lbl{font-size:12px;font-weight:600;opacity:.8;}
+  .verd-main{font-size:26px;font-weight:800;margin-top:3px;}
+  .verd-sub{font-size:13px;margin-top:4px;opacity:.85;}
+  .v-ok{background:var(--ok-bg);color:var(--ok);}
+  .v-warn{background:var(--ap-bg);color:var(--ap);}
+  .v-nego{background:var(--ng-bg);color:var(--ng);}
+  .v-refus{background:var(--rf-bg);color:var(--rf);}
 
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: none; align-items: flex-end; }
-  .modal-overlay.visible { display: flex; }
-  .modal { background: white; border-radius: 20px 20px 0 0; width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 16px 40px; }
-  .modal-handle { width: 36px; height: 4px; background: #CBD5E1; border-radius: 2px; margin: 0 auto 16px; }
-  .modal h2 { font-size: 18px; font-weight: 700; color: var(--blue); margin-bottom: 16px; }
+  .stats{display:flex;gap:6px;margin-bottom:14px;}
+  .stat{flex:1;border-radius:8px;padding:9px 6px;text-align:center;}
+  .stat-n{font-size:20px;font-weight:700;}
+  .stat-l{font-size:10px;margin-top:1px;}
 
-  .verdict { border-radius: var(--radius); padding: 16px; margin-bottom: 16px; text-align: center; }
-  .verdict-label { font-size: 13px; font-weight: 600; opacity: 0.8; }
-  .verdict-main { font-size: 24px; font-weight: 800; margin-top: 4px; }
-  .verdict.v-ok { background: var(--ok-bg); color: var(--ok); }
-  .verdict.v-nego { background: var(--nego-bg); color: var(--nego); }
-  .verdict.v-refus { background: var(--refus-bg); color: var(--refus); }
+  .sum-sec{margin-bottom:12px;}
+  .sum-sec h3{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+  .sum-item{display:flex;align-items:flex-start;gap:8px;padding:7px 9px;border-radius:8px;margin-bottom:3px;}
+  .sum-name{font-size:13px;font-weight:600;flex:1;}
+  .sum-obs{font-size:11px;color:#666;margin-top:2px;}
+  .sum-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;flex-shrink:0;white-space:nowrap;}
+  .unc{background:#F8FAFC;}
 
-  .stats-row { display: flex; gap: 8px; margin-bottom: 16px; }
-  .stat { flex: 1; border-radius: 8px; padding: 10px 8px; text-align: center; }
-  .stat-num { font-size: 22px; font-weight: 700; }
-  .stat-lbl { font-size: 11px; margin-top: 2px; }
+  .alert-crit{background:#FFF3CD;border:1px solid #FFD54F;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#7A5900;display:flex;gap:8px;align-items:flex-start;line-height:1.5;}
+  .alert-refus{background:var(--rf-bg);border:1px solid var(--rf-b);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--rf);display:flex;gap:8px;align-items:flex-start;line-height:1.5;}
 
-  .summary-section { margin-bottom: 14px; }
-  .summary-section h3 { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .summary-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; margin-bottom: 4px; }
-  .summary-item-name { font-size: 13px; flex: 1; }
-  .summary-item-result { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
-  .unchecked { background: #F8FAFC; }
-
-  .close-modal { width: 100%; margin-top: 16px; background: #F0F4F8; border: none; border-radius: var(--radius); padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; color: #444; }
+  .close-m{width:100%;margin-top:14px;background:#F0F4F8;border:none;border-radius:var(--r);padding:13px;font-size:15px;font-weight:600;cursor:pointer;color:#444;}
 </style>
 </head>
 <body>
 <div id="app">
   <header>
-    <h1>Inspection KZJ90 — Toyota Land Cruiser</h1>
-    <p id="progress-text">0 / 0 points vérifiés</p>
-    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <h1>Checklist KZJ90 — Inspection terrain</h1>
+    <p id="prog-txt">0 / 0 points vérifiés</p>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
   </header>
-  <div id="sections-container"></div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-quick" onclick="setMode('quick')">Filtre rapide (8 pts)</button>
+    <button class="mode-btn" id="btn-full" onclick="setMode('full')">Inspection complète</button>
+  </div>
+
+  <div class="tip-box" id="tip-quick">Commence par ces 8 points. Un seul rouge = inutile d'aller plus loin.</div>
+  <div class="tip-box" style="display:none" id="tip-full">Inspection complète — 19 points organisés par gravité métier.</div>
+
+  <div id="sc"></div>
 </div>
 
-<div class="bottom-bar">
-  <button class="btn-summary" onclick="openSummary()">Voir l'avis global</button>
+<div class="bottom">
+  <button class="btn-reset" onclick="resetAll()">↺</button>
+  <button class="btn-sum" onclick="openSummary()">Voir l'avis global</button>
 </div>
 
-<div class="modal-overlay" id="modal" onclick="closeIfOutside(event)">
-  <div class="modal" id="modal-content">
-    <div class="modal-handle"></div>
+<div class="overlay" id="modal" onclick="bgClose(event)">
+  <div class="modal">
+    <div class="mhandle"></div>
     <div id="modal-body"></div>
-    <button class="close-modal" onclick="closeSummary()">Fermer</button>
+    <button class="close-m" onclick="closeM()">Fermer</button>
   </div>
 </div>
 
 <script>
-const DATA = [
-  {
-    id: "chassis",
-    title: "Chassis & Structure",
-    emoji: "🔩",
-    items: [
-      {
-        id: "longeron_av",
-        title: "Longerons avant",
-        action: "Gratter au tournevis sur toute la longueur du longeron avant, sous le moteur",
-        options: [
-          { text: "Peinture intacte, métal sain — lame rebondit", impact: "ok" },
-          { text: "Rouille de surface, lame ne pénètre pas le métal", impact: "aprevoir" },
-          { text: "Lame s'enfonce partiellement dans le métal", impact: "negociation" },
-          { text: "Perforation visible ou métal cède sous pression du pouce", impact: "refus" },
-        ],
-        interp: "Sur KZJ90, la corrosion commence par les flancs bas du longeron avant. Résistance au grattage = seul critère fiable."
-      },
-      {
-        id: "longeron_ar",
-        title: "Longerons arrière",
-        action: "Gratter au tournevis près des fixations de ressorts et traverse remorquage",
-        options: [
-          { text: "Surface homogène, aucune soudure visible, métal sain", impact: "ok" },
-          { text: "Rouille légère, grattage solide, pas de déformation", impact: "aprevoir" },
-          { text: "Soudures récentes ou réparations visibles sur le longeron", impact: "negociation" },
-          { text: "Déformation, boursouflure ou métal creux au marteau", impact: "refus" },
-        ],
-        interp: "Toute soudure de réparation sur longeron = historique d'accident ou corrosion structurelle. Refus ou expertise obligatoire."
-      },
-      {
-        id: "traverse_ar",
-        title: "Traverse arrière / remorquage",
-        action: "Frapper la traverse de remorquage avec le marteau plastique sur ses deux faces et angles",
-        options: [
-          { text: "Son clair et plein, aucune déformation", impact: "ok" },
-          { text: "Son légèrement mat, rouille de surface sans impact rigidité", impact: "aprevoir" },
-          { text: "Son creux sur zone localisée, rouille pénétrante", impact: "negociation" },
-          { text: "Son creux sur plus de 30% de la traverse ou déformation perceptible", impact: "refus" },
-        ],
-        interp: "Son creux = métal rongé de l'intérieur. Irréparable sans remplacement complet."
-      },
-      {
-        id: "soubassement",
-        title: "Soubassement & seuils de portes",
-        action: "S'allonger sous le véhicule, lampe torche dans chaque passage de roue. Gratter les seuils de portes par le bas",
-        options: [
-          { text: "Protection homogène, aucune perforation, métal sain partout", impact: "ok" },
-          { text: "Rouille de surface sur zones non structurelles, métal sain dessous", impact: "aprevoir" },
-          { text: "Métal visible sans protection, rouille pénétrante sur plus de 30 cm²", impact: "negociation" },
-          { text: "Perforation visible en soubassement ou seuil traversé par la rouille", impact: "refus" },
-        ],
-        interp: "Seuils perforés = structure compromise. Sur KZJ90, les seuils porteurs participent à la rigidité de caisse."
-      },
-      {
-        id: "berceau",
-        title: "Fixations berceau moteur",
-        action: "Localiser les 4 silent-blocs du berceau moteur, tirer latéralement sur le berceau à deux mains",
-        options: [
-          { text: "Aucun mouvement, boulons non corrodés", impact: "ok" },
-          { text: "Micro-jeu sans bruit, caoutchouc légèrement fissuré", impact: "aprevoir" },
-          { text: "Jeu de 5 mm et plus, bruit de frottement métal/métal", impact: "negociation" },
-          { text: "Berceau mobile visuellement, boulonnerie cisaillée ou absente", impact: "refus" },
-        ],
-        interp: "Jeu anormal = risque de désalignement moteur/transmission."
-      },
-    ]
-  },
-  {
-    id: "carrosserie",
-    title: "Carrosserie & Vitrages",
-    emoji: "🔍",
-    items: [
-      {
-        id: "alignement",
-        title: "Alignement des panneaux",
-        action: "Se positionner à 3 mètres, observer les jours de carrosserie en plongeant l'angle de vue",
-        options: [
-          { text: "Jours homogènes, parallèles et réguliers sur tout le pourtour", impact: "ok" },
-          { text: "Un jour légèrement irrégulier (moins de 2 mm) sur une zone", impact: "aprevoir" },
-          { text: "Différence de 3 mm et plus entre deux panneaux adjacents", impact: "negociation" },
-          { text: "Jours franchement inégaux sur plusieurs côtés ou panneau rentrant/sortant", impact: "refus" },
-        ],
-        interp: "Jours irréguliers sur plusieurs zones = véhicule accidenté et recalibré."
-      },
-      {
-        id: "aimant",
-        title: "Test aimant (mastic)",
-        action: "Passer un aimant sur chaque panneau — s'il adhère moins ou se détache : mastic sous peinture",
-        options: [
-          { text: "Aimant adhère uniformément sur tous les panneaux", impact: "ok" },
-          { text: "Légère variation sur un panneau isolé (protections plastiques)", impact: "aprevoir" },
-          { text: "Aimant ne tient plus sur zone localisée moins de 20 cm", impact: "negociation" },
-          { text: "Aimant glisse sur zone large ou plusieurs zones distinctes", impact: "refus" },
-        ],
-        interp: "Zone sans adhérence = mastic en quantité. Limite légale : 3 mm. Zone large = réparation dissimulée importante."
-      },
-      {
-        id: "vitrages",
-        title: "Vitrages",
-        action: "Inspecter chaque vitrage à contre-jour : impacts, fissures, traces de sablage",
-        options: [
-          { text: "Aucun impact, aucune fissure, pas de sablage", impact: "ok" },
-          { text: "Micro-impact hors champ de conduite, pas d'amorce de fissure", impact: "aprevoir" },
-          { text: "Impact dans le champ de conduite ou amorce de fissure", impact: "negociation" },
-          { text: "Fissure propagée ou sablage rendant la visibilité insuffisante", impact: "refus" },
-        ],
-        interp: "Fissure propagée = remplacement pare-brise obligatoire. Sablage = contrôle technique non conforme."
-      },
-    ]
-  },
-  {
-    id: "mecanique",
-    title: "Mécanique (contrôlable sur place)",
-    emoji: "⚙️",
-    items: [
-      {
-        id: "demarrage",
-        title: "Démarrage à froid",
-        action: "Arriver avant le vendeur. Poser la main sur le capot pour confirmer moteur froid. Démarrer",
-        options: [
-          { text: "Démarrage immédiat, régime stable en moins de 10 secondes", impact: "ok" },
-          { text: "Démarrage en 3-5 secondes, régime instable puis stabilisation", impact: "aprevoir" },
-          { text: "Démarrage en plus de 5 secondes, fumée blanche épaisse plus d'1 minute", impact: "negociation" },
-          { text: "Non-démarrage ou fumée blanche permanente après montée en température", impact: "refus" },
-        ],
-        interp: "Fumée blanche persistante au-delà de 3 minutes = entrée d'eau dans la chambre de combustion."
-      },
-      {
-        id: "huile",
-        title: "Niveau et état huile moteur",
-        action: "Sortir la jauge, essuyer sur papier blanc, remettre, ressortir. Observer couleur, consistance, mousse",
-        options: [
-          { text: "Huile ambrée/dorée, niveau correct, aucune mousse", impact: "ok" },
-          { text: "Huile noire mais fluide, niveau correct, pas de mousse", impact: "aprevoir" },
-          { text: "Huile très noire et épaisse ou niveau sous le MIN", impact: "negociation" },
-          { text: "Mousse marron chocolat sur la jauge ou dans le goulot de remplissage", impact: "refus" },
-        ],
-        interp: "Mousse = émulsion huile/eau = joint de culasse percé. Signe diagnostique le plus fiable du 1KZ-TE."
-      },
-      {
-        id: "refroid",
-        title: "Circuit de refroidissement",
-        action: "Moteur FROID : ouvrir vase d'expansion, observer niveau et couleur. Moteur chaud : sentir le goulot",
-        options: [
-          { text: "Niveau correct, liquide rose/vert clair transparent, aucune odeur", impact: "ok" },
-          { text: "Niveau correct, liquide marron ou trouble sans odeur particulière", impact: "aprevoir" },
-          { text: "Niveau sous le MIN ou film huileux visible en surface", impact: "negociation" },
-          { text: "Odeur de gaz d'échappement au goulot ou bulles rythmées (moteur chaud)", impact: "refus" },
-        ],
-        interp: "Film huileux ou odeur de gaz = joint de culasse percé. Point critique absolu sur le 1KZ-TE."
-      },
-      {
-        id: "fumees",
-        title: "Fumées à l'accélération",
-        action: "Monter à 2500 tr/min en stationnaire, maintenir 5 secondes, relâcher brutalement. Observer l'échappement",
-        options: [
-          { text: "Aucune fumée visible à la relâche", impact: "ok" },
-          { text: "Légère fumée grise disparaissant en 2 secondes", impact: "aprevoir" },
-          { text: "Fumée noire persistante plus de 5 secondes", impact: "negociation" },
-          { text: "Fumée bleue persistante (huile dans la combustion)", impact: "refus" },
-        ],
-        interp: "Fumée noire = injection mal réglée ou injecteurs. Fumée bleue = consommation d'huile, révision moteur imminente."
-      },
-      {
-        id: "amortisseurs",
-        title: "Amortisseurs",
-        action: "Peser de tout son poids sur chaque aile d'angle, relâcher d'un coup. Compter les oscillations",
-        options: [
-          { text: "Revient en position et s'arrête en 1 oscillation maximum", impact: "ok" },
-          { text: "Oscille 2 fois avant de s'immobiliser", impact: "aprevoir" },
-          { text: "Oscille 3 fois ou plus avant de s'immobiliser", impact: "negociation" },
-          { text: "Fuite d'huile visible sur le corps de l'amortisseur", impact: "refus" },
-        ],
-        interp: "Plus de 2 oscillations = amortisseur fatigué. Les 4 se remplacent par paires."
-      },
-      {
-        id: "rotules",
-        title: "Rotules & biellettes de direction",
-        action: "Roue avant levée au cric : saisir à 9h/3h et tirer-pousser, puis à 6h/12h. Mesurer le jeu perçu",
-        options: [
-          { text: "Aucun jeu dans les deux axes", impact: "ok" },
-          { text: "Micro-jeu à 9h-3h inférieur à 1 mm, rien à 6h-12h", impact: "aprevoir" },
-          { text: "Jeu perceptible de 2-3 mm dans au moins un axe", impact: "negociation" },
-          { text: "Jeu supérieur à 3 mm ou bruit de craquement métal", impact: "refus" },
-        ],
-        interp: "Jeu à 9h-3h = rotule de direction. Jeu à 6h-12h = rotule de suspension. Sur KZJ90, rotules intégrées au moyeu = coûteuses."
-      },
-      {
-        id: "freinage",
-        title: "Freinage (test sur route)",
-        action: "À 50 km/h sur route sèche et droite : freiner fort jusqu'à l'arrêt. Observer trajectoire et pédale",
-        options: [
-          { text: "Arrêt en ligne droite, pédale ferme avec résistance progressive", impact: "ok" },
-          { text: "Légère dérive de moins de 30 cm, pédale ferme", impact: "aprevoir" },
-          { text: "Dérive de 50 cm et plus ou pédale molle en fin de course", impact: "negociation" },
-          { text: "Pédale au plancher, vibration forte ou dérive importante", impact: "refus" },
-        ],
-        interp: "Pédale molle = air dans le circuit ou maître-cylindre défaillant. Vibration = disques voilés."
-      },
-      {
-        id: "cardans_av",
-        title: "Cardans avant",
-        action: "Braquage à fond en marche lente dans les deux sens (parking). Fenêtre ouverte, écouter chaque roue",
-        options: [
-          { text: "Aucun claquement, rotation silencieuse en tout-braquage", impact: "ok" },
-          { text: "Léger craquement non reproductible à un seul sens", impact: "aprevoir" },
-          { text: "Claquement clair reproductible à chaque rotation en braquage", impact: "negociation" },
-          { text: "Claquement violent ou vibration perceptible au volant", impact: "refus" },
-        ],
-        interp: "Claquement en braquage = cardan en fin de vie. Pièce disponible, à chiffrer avant négociation."
-      },
-    ]
-  },
-  {
-    id: "admin",
-    title: "Administratif",
-    emoji: "📄",
-    items: [
-      {
-        id: "cg",
-        title: "Carte grise & VIN",
-        action: "Comparer VIN carte grise / plaque tableau de bord / gravure châssis (longeron avant gauche) caractère par caractère",
-        options: [
-          { text: "3 sources identiques, gravure d'origine non retouchée", impact: "ok" },
-          { text: "2 sources identiques, plaque TB légèrement décollée mais lisible", impact: "aprevoir" },
-          { text: "Une différence de caractère entre deux sources", impact: "negociation" },
-          { text: "Gravure châssis surchargée, effacée ou ne correspond pas à la carte grise", impact: "refus" },
-        ],
-        interp: "Toute différence = véhicule potentiellement volé ou reconstitué. Arrêter la transaction."
-      },
-      {
-        id: "ct",
-        title: "Contrôle technique",
-        action: "Lire le rapport complet (pas uniquement la vignette). Pointer les défauts majeurs et contre-visites",
-        options: [
-          { text: "CT de moins de 6 mois, aucun défaut majeur", impact: "ok" },
-          { text: "CT de 6 à 18 mois, défauts mineurs uniquement", impact: "aprevoir" },
-          { text: "CT de plus de 18 mois ou contre-visite passée récemment", impact: "negociation" },
-          { text: "Pas de CT ou défaut majeur non résolu (châssis, freinage, direction)", impact: "refus" },
-        ],
-        interp: "Contre-visite récente = problème 'corrigé' en urgence. Vérifier cohérence avec état constaté."
-      },
-      {
-        id: "km",
-        title: "Cohérence kilométrique",
-        action: "Demander les factures d'entretien. Croiser les km notés sur factures avec le compteur actuel",
-        options: [
-          { text: "Factures présentes, kilométrages croissants et cohérents", impact: "ok" },
-          { text: "Lacunes mais kilométrages des factures présentes cohérents", impact: "aprevoir" },
-          { text: "Kilométrage d'une facture supérieur au compteur actuel", impact: "refus" },
-          { text: "Absence totale de factures sur véhicule à plus de 150 000 km", impact: "refus" },
-        ],
-        interp: "Kilométrage facture > compteur = compteur trafiqué. Refus immédiat."
-      },
-    ]
-  }
+const IL={ok:"OK",aprevoir:"À prévoir",negociation:"Négociation",refus:"REFUS"};
+const WL={crit:"CRITIQUE",cost:"COÛTEUX",fin:"MINEUR"};
+const CLRS={ok:'#1E7A1E',aprevoir:'#9A7000',negociation:'#CC5500',refus:'#B00000'};
+
+const DATA=[
+  {id:"chassis",title:"Châssis & Structure",critical:true,items:[
+    {id:"long_av",quick:true,weight:"crit",title:"Longerons avant",
+     action:"Tournevis planté fort sur toute la longueur du longeron avant, sous le moteur",
+     options:[
+       {t:"Peinture intacte, métal sain — lame rebondit",impact:"ok"},
+       {t:"Rouille de surface, métal résiste sous grattage",impact:"aprevoir"},
+       {t:"Lame s'enfonce partiellement, métal friable sur une zone",impact:"negociation"},
+       {t:"Lame traverse, trou ou métal qui cède sous pression",impact:"refus"}],
+     interp:"Sur KZJ90 la corrosion attaque d'abord les flancs bas du longeron. Si la lame entre dans le métal : châssis compromis."},
+    {id:"long_ar",quick:true,weight:"crit",title:"Longerons arrière",
+     action:"Gratter au tournevis près des fixations de ressorts et de la traverse de remorquage",
+     options:[
+       {t:"Surface homogène, métal sain, pas de soudure visible",impact:"ok"},
+       {t:"Rouille de surface, métal résiste, pas de déformation",impact:"aprevoir"},
+       {t:"Soudures de réparation visibles — qualité et étendue à évaluer",impact:"negociation"},
+       {t:"Métal cède au grattage, déformation ou boursouflure perceptible",impact:"refus"}],
+     interp:"Une soudure de réparation n'est pas automatiquement rédhibitoire — c'est son étendue, sa qualité et le traitement anti-corrosion appliqué qui comptent."},
+    {id:"traverse",quick:true,weight:"crit",title:"Traverse arrière",
+     action:"Frapper la traverse de remorquage au marteau sur ses deux faces et ses angles",
+     options:[
+       {t:"Son clair et plein sur toute la traverse",impact:"ok"},
+       {t:"Son légèrement mat, rouille de surface sans impact sur la rigidité",impact:"aprevoir"},
+       {t:"Son creux sur une zone localisée — rouille interne probable",impact:"negociation"},
+       {t:"Son creux sur la majorité de la traverse ou déformation visible",impact:"refus"}],
+     interp:"Son creux = métal rongé de l'intérieur. Irréparable sans remplacement complet."},
+    {id:"soub",quick:false,weight:"crit",title:"Soubassement & seuils",
+     action:"Lampe torche sous le véhicule et dans chaque passage de roue. Gratter les seuils de portes par le bas au tournevis",
+     options:[
+       {t:"Protection homogène, seuils solides, aucune perforation",impact:"ok"},
+       {t:"Rouille de surface sur zones non structurelles, métal sain dessous",impact:"aprevoir"},
+       {t:"Métal exposé avec rouille pénétrante sur zone visible",impact:"negociation"},
+       {t:"Perforation visible en soubassement ou seuil traversé par la rouille",impact:"refus"}],
+     interp:"Les seuils de portes participent à la rigidité de caisse sur KZJ90. Une perforation est un problème structurel."}
+  ]},
+  {id:"moteur",title:"Moteur 1KZ-TE — Points critiques",critical:true,items:[
+    {id:"demarr",quick:true,weight:"crit",title:"Démarrage à froid",
+     action:"Arriver avant le vendeur. Poser la paume sur le capot — doit être froid. Démarrer sans aide extérieure",
+     options:[
+       {t:"Démarrage immédiat, régime stable en moins de 15 secondes",impact:"ok"},
+       {t:"Démarrage en 3-5 secondes, régime instable puis se stabilise",impact:"aprevoir"},
+       {t:"Démarrage long, fumée blanche épaisse persistant plus d'une minute",impact:"negociation"},
+       {t:"Non-démarrage, ou fumée blanche qui persiste après 3 minutes de chauffe",impact:"refus"}],
+     interp:"Fumée blanche persistante au-delà de 3 min = eau dans la chambre de combustion = joint de culasse."},
+    {id:"huile",quick:true,weight:"crit",title:"État de l'huile moteur",
+     action:"Sortir la jauge, essuyer sur papier blanc, remettre, ressortir. Observer couleur et présence de mousse",
+     options:[
+       {t:"Huile ambrée ou noire fluide, niveau correct, aucune mousse",impact:"ok"},
+       {t:"Huile noire épaisse ou niveau légèrement bas — entretien à rattraper",impact:"aprevoir"},
+       {t:"Niveau sous le MIN visible sur la jauge",impact:"negociation"},
+       {t:"Mousse marron chocolat sur la jauge ou dans le goulot de remplissage",impact:"refus"}],
+     interp:"Mousse = mélange huile/eau = joint de culasse percé. Signe le plus fiable sur le 1KZ-TE. Refus sans condition."},
+    {id:"refroid",quick:true,weight:"crit",title:"Circuit de refroidissement",
+     action:"Moteur FROID : ouvrir le vase d'expansion, observer niveau et couleur. Moteur chaud (80°C) : approcher le nez du goulot ouvert",
+     options:[
+       {t:"Niveau correct, liquide rose ou vert clair, aucune odeur de gaz",impact:"ok"},
+       {t:"Liquide marron ou trouble, niveau correct, pas d'odeur particulière",impact:"aprevoir"},
+       {t:"Niveau bas ou film huileux visible à la surface du liquide",impact:"negociation"},
+       {t:"Odeur d'échappement au goulot, ou bulles visibles dans le vase à chaud",impact:"refus"}],
+     interp:"Odeur de gaz ou bulles = gaz de combustion dans le circuit = joint de culasse. Point critique absolu sur le 1KZ-TE."},
+    {id:"fumees",quick:false,weight:"crit",title:"Fumées à l'accélération",
+     action:"Monter à 2500 tr/min, maintenir 5 secondes, relâcher brutalement. Observer l'échappement depuis l'arrière",
+     options:[
+       {t:"Aucune fumée visible",impact:"ok"},
+       {t:"Légère fumée grise disparaissant en 2 secondes",impact:"aprevoir"},
+       {t:"Fumée noire persistante plus de 5 secondes",impact:"negociation"},
+       {t:"Fumée bleue persistante quelle que soit la durée",impact:"refus"}],
+     interp:"Fumée bleue = huile brûlée dans la combustion. Segmentation ou guides soupapes. Révision moteur inévitable."}
+  ]},
+  {id:"train",title:"Train roulant & Freinage",critical:false,items:[
+    {id:"amort",quick:false,weight:"cost",title:"Amortisseurs",
+     action:"Appuyer fort sur chaque aile d'angle de tout son poids, relâcher d'un coup. Compter les oscillations",
+     options:[
+       {t:"Revient en position et s'immobilise en 1 oscillation maximum",impact:"ok"},
+       {t:"Oscille 2 fois avant de s'immobiliser",impact:"aprevoir"},
+       {t:"Oscille 3 fois ou plus avant de s'immobiliser",impact:"negociation"},
+       {t:"Fuite d'huile visible sur le corps de l'amortisseur",impact:"negociation"}],
+     interp:"Plus de 2 oscillations = amortisseur fatigué. Se changent par paires. Coût accessible, à chiffrer."},
+    {id:"direction",quick:false,weight:"cost",title:"Jeu de direction",
+     action:"Moteur allumé, au pas. Faire des petits mouvements gauche/droite sur le volant sans braquer vraiment — observer le délai avant que les roues réagissent",
+     options:[
+       {t:"Réponse immédiate, aucun jeu perceptible",impact:"ok"},
+       {t:"Très léger temps mort, roues suivent rapidement",impact:"aprevoir"},
+       {t:"Jeu notable avant que les roues bougent — plusieurs centimètres de rotation libre",impact:"negociation"},
+       {t:"Jeu important, volant flou dans une direction ou direction molle",impact:"refus"}],
+     interp:"Jeu au volant sans lever de roue = test terrain fiable pour détecter biellettes ou rotules usées."},
+    {id:"cardans",quick:false,weight:"cost",title:"Cardans avant",
+     action:"Braquage à fond en marche lente dans les deux sens (parking, fenêtre ouverte). Écouter chaque côté",
+     options:[
+       {t:"Aucun bruit en braquage à fond des deux côtés",impact:"ok"},
+       {t:"Léger craquement non reproductible, disparaît",impact:"aprevoir"},
+       {t:"Claquement clair et reproductible d'un côté à chaque rotation de roue",impact:"negociation"},
+       {t:"Claquement violent ou vibration perceptible au volant en braquage",impact:"negociation"}],
+     interp:"Claquement en braquage à fond = cardan en fin de vie. Pièce disponible et remplacement accessible. À chiffrer avant de négocier."},
+    {id:"freinage",quick:true,weight:"crit",title:"Freinage",
+     action:"À 50 km/h sur route sèche et droite : freiner fort jusqu'à l'arrêt complet. Observer la trajectoire et ressentir la pédale",
+     options:[
+       {t:"Arrêt en ligne droite, pédale ferme avec résistance progressive",impact:"ok"},
+       {t:"Légère dérive, pédale ferme — déséquilibre léger",impact:"aprevoir"},
+       {t:"Dérive marquée ou pédale qui s'enfonce en fin de course",impact:"negociation"},
+       {t:"Pédale molle ou au plancher, ou dérive incontrôlable",impact:"refus"}],
+     interp:"Pédale molle = air dans le circuit ou maître-cylindre. Dérive = freinage déséquilibré. Ne pas rouler dans les deux cas."}
+  ]},
+  {id:"carross",title:"Carrosserie",critical:false,items:[
+    {id:"panneaux",quick:false,weight:"cost",title:"Alignement des panneaux",
+     action:"Se placer à 3-4 mètres face à chaque côté, regard rasant. Observer si les panneaux s'alignent visuellement",
+     options:[
+       {t:"Tous les panneaux dans le même plan, jours réguliers partout",impact:"ok"},
+       {t:"Un panneau légèrement en retrait ou en saillie, non flagrant",impact:"aprevoir"},
+       {t:"Une aile, une porte ou un capot visiblement décalé par rapport au panneau voisin",impact:"negociation"},
+       {t:"Plusieurs panneaux désalignés ou un panneau clairement enfoncé ou sorti",impact:"refus"}],
+     interp:"Mots-clés terrain : 'aile qui ressort', 'porte qui affleure mal', 'capot plus haut d'un côté'. Pas besoin de mesurer."},
+    {id:"aimant",quick:false,weight:"fin",title:"Détection mastic (aimant)",
+     action:"Si tu as un aimant : le faire glisser sur ailes, portes et capot. Une zone où il adhère moins = mastic sous peinture",
+     options:[
+       {t:"Adhérence homogène sur tous les panneaux",impact:"ok"},
+       {t:"Légère variation sur doublure ou protection plastique — faux positif normal",impact:"aprevoir"},
+       {t:"Zone sans adhérence sur un seul panneau, localisée",impact:"negociation"},
+       {t:"Plusieurs zones ou zone étendue sans adhérence",impact:"negociation"}],
+     interp:"Test indicatif — faux positifs possibles sur parois doubles ou plastiques. Toujours croiser avec l'alignement des panneaux."},
+    {id:"vitrages",quick:false,weight:"cost",title:"Vitrages",
+     action:"Chaque vitre à contre-jour : impacts, fissures, état du pare-brise face à toi",
+     options:[
+       {t:"Aucun impact, aucune fissure, pas de sablage visible",impact:"ok"},
+       {t:"Micro-impact hors du champ de conduite, pas d'amorce de fissure",impact:"aprevoir"},
+       {t:"Impact dans le champ de conduite ou début de fissure visible",impact:"negociation"},
+       {t:"Fissure propagée ou pare-brise sablé — visibilité insuffisante",impact:"refus"}],
+     interp:"Fissure propagée = pare-brise à remplacer. Sablage = contre-visite probable au prochain CT."}
+  ]},
+  {id:"admin",title:"Administratif",critical:true,items:[
+    {id:"vin",quick:true,weight:"crit",title:"VIN — Triple vérification",
+     action:"Comparer le VIN de la carte grise / plaque tableau de bord / gravure sur longeron avant gauche — caractère par caractère",
+     options:[
+       {t:"Les 3 sources sont identiques, gravure châssis non retouchée",impact:"ok"},
+       {t:"2 sources identiques, plaque tableau de bord légèrement décollée mais lisible",impact:"aprevoir"},
+       {t:"Une lettre ou un chiffre diffère entre deux sources",impact:"refus"},
+       {t:"Gravure châssis absente, surchargée, ou illisible",impact:"refus"}],
+     interp:"Toute incohérence de VIN = véhicule potentiellement volé ou reconstitué. Stopper la visite immédiatement."},
+    {id:"ct",quick:false,weight:"crit",title:"Contrôle technique",
+     action:"Lire le rapport complet — pas uniquement la vignette. Identifier les défauts majeurs et les éventuelles contre-visites",
+     options:[
+       {t:"CT de moins de 6 mois, aucun défaut majeur noté",impact:"ok"},
+       {t:"CT de 6 à 18 mois, défauts mineurs uniquement",impact:"aprevoir"},
+       {t:"CT de plus de 18 mois ou contre-visite passée récemment",impact:"negociation"},
+       {t:"Pas de CT présenté, ou défaut majeur châssis/freinage/direction non résolu",impact:"refus"}],
+     interp:"Contre-visite récente = problème identifié et corrigé en urgence. Vérifier la cohérence avec ce que tu constates sur place."},
+    {id:"km",quick:false,weight:"cost",title:"Cohérence kilométrique",
+     action:"Demander les factures d'entretien. Comparer les km notés dessus avec le compteur actuel",
+     options:[
+       {t:"Factures présentes, kilométrages croissants et cohérents avec le compteur",impact:"ok"},
+       {t:"Lacunes dans les factures, mais celles présentes sont cohérentes",impact:"aprevoir"},
+       {t:"Peu ou pas de factures sur véhicule à kilométrage élevé — risque à intégrer dans la décote",impact:"negociation"},
+       {t:"Un km de facture supérieur au compteur actuel — compteur trafiqué",impact:"refus"}],
+     interp:"Absence de factures n'est pas un refus automatique — c'est un risque à transformer en argument de décote."}
+  ]}
 ];
 
-const state = {};
-DATA.forEach(s => s.items.forEach(item => { state[item.id] = null; }));
+let mode="quick";
+const state={};
+const selOpt={};
+DATA.forEach(s=>s.items.forEach(i=>{state[i.id]=null;}));
 
-const impactLabels = { ok: "OK", aprevoir: "À prévoir", negociation: "Négociation", refus: "REFUS" };
-const impactPriority = { ok: 0, aprevoir: 1, negociation: 2, refus: 3 };
-
-function render() {
-  const container = document.getElementById("sections-container");
-  container.innerHTML = "";
-  DATA.forEach((section, si) => {
-    const div = document.createElement("div");
-    div.className = "section";
-    const checked = section.items.filter(i => state[i.id] !== null);
-    const badge = `${checked.length}/${section.items.length}`;
-    const open = section.items.some(i => state[i.id] === null);
-    div.innerHTML = `
-      <div class="section-header ${open ? '' : 'collapsed'}" onclick="toggleSection('sec-body-${si}', this)">
-        <span class="section-title">${section.title}</span>
-        <span class="section-badge">${badge}</span>
-        <span class="chevron ${open ? 'open' : ''}">▼</span>
-      </div>
-      <div class="section-body" id="sec-body-${si}" style="display:${open ? 'block' : 'none'}">
-        ${section.items.map(item => renderItem(item)).join('')}
-      </div>`;
-    container.appendChild(div);
-  });
-  updateProgress();
+function setMode(m){
+  mode=m;
+  document.getElementById('btn-quick').className='mode-btn'+(m==='quick'?' active':'');
+  document.getElementById('btn-full').className='mode-btn'+(m==='full'?' active':'');
+  document.getElementById('tip-quick').style.display=m==='quick'?'block':'none';
+  document.getElementById('tip-full').style.display=m==='full'?'block':'none';
+  renderAll();
 }
 
-function renderItem(item) {
-  const sel = state[item.id];
-  const iconClass = sel ? `done-${sel}` : '';
-  const iconChar = sel ? '✓' : '';
-  return `<div class="check-item" id="item-${item.id}">
-    <div class="check-header" onclick="toggleItem('opts-${item.id}')">
-      <div class="check-icon ${iconClass}">${iconChar}</div>
+function visItems(sec){return mode==='quick'?sec.items.filter(i=>i.quick):sec.items;}
+
+function renderAll(){
+  const c=document.getElementById('sc');
+  c.innerHTML='';
+  DATA.forEach((sec,si)=>{
+    const items=visItems(sec);
+    if(!items.length)return;
+    const done=items.filter(i=>state[i.id]!==null).length;
+    const open=items.some(i=>state[i.id]===null);
+    const d=document.createElement('div');
+    d.className='section';
+    d.innerHTML=`
+      <div class="sec-head ${open?'':'closed'}" onclick="toggleSec('sb${si}',this)">
+        <span class="sec-title">${sec.title}</span>
+        ${sec.critical?'<span class="critiq-badge">CRITIQUE</span>':''}
+        <span class="sec-badge">${done}/${items.length}</span>
+        <span class="chev ${open?'o':''}">▼</span>
+      </div>
+      <div class="sec-body" id="sb${si}" style="display:${open?'block':'none'}">
+        ${items.map(it=>rItem(it)).join('')}
+      </div>`;
+    c.appendChild(d);
+  });
+  updProg();
+}
+
+function rItem(it){
+  const sel=state[it.id],idx=selOpt[it.id];
+  const wc={crit:'w-crit',cost:'w-cost',fin:'w-fin'}[it.weight];
+  return `<div class="item" id="itm${it.id}">
+    <div class="item-head" onclick="toggleOpts('o${it.id}')">
+      <div class="icon ${sel||''}" id="ic${it.id}">${sel?'✓':''}</div>
       <div style="flex:1">
-        <div class="check-title">${item.title}</div>
-        <div class="check-subtitle">${item.action}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span class="item-title">${it.title}</span>
+          <span class="item-weight ${wc}">${WL[it.weight]}</span>
+        </div>
+        <div class="item-action">${it.action}</div>
       </div>
     </div>
-    <div class="options-body" id="opts-${item.id}" style="display:none">
-      ${item.options.map((opt, i) => `
-        <div class="option ${sel === opt.impact && state[item.id] !== null && item.options.findIndex(o=>o.impact===sel)===i ? 'sel-'+opt.impact : (sel && item.options.findIndex(o=>o.impact===sel)===i ? 'sel-'+opt.impact : '')}"
-             onclick="selectOption('${item.id}', '${opt.impact}', ${i})" id="opt-${item.id}-${i}">
-          <div class="option-dot"></div>
-          <div class="option-text">${opt.text}</div>
-          <div class="option-impact impact-${opt.impact}">${impactLabels[opt.impact]}</div>
-        </div>`).join('')}
-      <div class="interp">${item.interp}</div>
+    <div class="opts" id="o${it.id}" style="display:none">
+      ${it.options.map((opt,i)=>{
+        const isSel=sel!==null&&idx===i;
+        return `<div class="opt ${isSel?'s-'+sel:''}" id="oo${it.id}${i}" onclick="pick('${it.id}',${i},'${opt.impact}')">
+          <div class="opt-dot" ${isSel?`style="background:${CLRS[sel]};border-color:${CLRS[sel]}"`:''}></div>
+          <div class="opt-text">${opt.t}</div>
+          <div class="opt-imp imp-${opt.impact}">${IL[opt.impact]}</div>
+        </div>`;
+      }).join('')}
+      <div class="interp">${it.interp}</div>
     </div>
   </div>`;
 }
 
-const selectedOptions = {};
-
-function selectOption(itemId, impact, optIdx) {
-  selectedOptions[itemId] = optIdx;
-  state[itemId] = impact;
-  const item = DATA.flatMap(s => s.items).find(i => i.id === itemId);
-  const iconEl = document.querySelector(`#item-${itemId} .check-icon`);
-  iconEl.className = `check-icon done-${impact}`;
-  iconEl.textContent = '✓';
-  item.options.forEach((opt, i) => {
-    const el = document.getElementById(`opt-${itemId}-${i}`);
-    if (!el) return;
-    el.className = 'option' + (i === optIdx ? ` sel-${impact}` : '');
-    el.querySelector('.option-dot').style.background = (i === optIdx) ? getImpactColor(impact) : '';
-    el.querySelector('.option-dot').style.borderColor = (i === optIdx) ? getImpactColor(impact) : '';
+function pick(id,idx,impact){
+  state[id]=impact; selOpt[id]=idx;
+  const it=DATA.flatMap(s=>s.items).find(i=>i.id===id);
+  const ic=document.getElementById('ic'+id);
+  ic.className='icon '+impact; ic.textContent='✓';
+  it.options.forEach((_,i)=>{
+    const el=document.getElementById('oo'+id+i);
+    if(!el)return;
+    el.className='opt'+(i===idx?' s-'+impact:'');
+    const dot=el.querySelector('.opt-dot');
+    dot.style.background=i===idx?CLRS[impact]:'';
+    dot.style.borderColor=i===idx?CLRS[impact]:'';
   });
-  setTimeout(() => {
-    document.getElementById(`opts-${itemId}`).style.display = 'none';
-  }, 300);
-  updateProgress();
+  setTimeout(()=>{document.getElementById('o'+id).style.display='none';},280);
+  updProg();
 }
 
-function getImpactColor(impact) {
-  return { ok: '#1E7A1E', aprevoir: '#B8860B', negociation: '#CC5500', refus: '#B00000' }[impact];
+function toggleOpts(id){const e=document.getElementById(id);e.style.display=e.style.display==='none'?'block':'none';}
+function toggleSec(bodyId,head){
+  const b=document.getElementById(bodyId),vis=b.style.display!=='none';
+  b.style.display=vis?'none':'block';
+  head.querySelector('.chev').className='chev'+(vis?'':' o');
+  head.className='sec-head'+(vis?' closed':'');
 }
 
-function toggleItem(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+function updProg(){
+  const vis=DATA.flatMap(s=>visItems(s));
+  const tot=vis.length,done=vis.filter(i=>state[i.id]!==null).length;
+  document.getElementById('prog-txt').textContent=`${done} / ${tot} points vérifiés`;
+  document.getElementById('prog-fill').style.width=`${Math.round(done/tot*100)}%`;
 }
 
-function toggleSection(bodyId, header) {
-  const body = document.getElementById(bodyId);
-  const chev = header.querySelector('.chevron');
-  const visible = body.style.display !== 'none';
-  body.style.display = visible ? 'none' : 'block';
-  chev.className = 'chevron' + (visible ? '' : ' open');
-  header.className = 'section-header' + (visible ? ' collapsed' : '');
-}
+function resetAll(){Object.keys(state).forEach(k=>{state[k]=null;delete selOpt[k];});renderAll();}
 
-function updateProgress() {
-  const total = Object.keys(state).length;
-  const done = Object.values(state).filter(v => v !== null).length;
-  document.getElementById('progress-text').textContent = `${done} / ${total} points vérifiés`;
-  document.getElementById('prog-fill').style.width = `${Math.round(done / total * 100)}%`;
-}
+function openSummary(){
+  const all=DATA.flatMap(s=>s.items.map(i=>({...i,sTitle:s.title})));
+  const chk=all.filter(i=>state[i.id]!==null);
+  const cnt={ok:0,aprevoir:0,negociation:0,refus:0};
+  chk.forEach(i=>cnt[state[i.id]]++);
+  const critRf=chk.filter(i=>i.weight==='crit'&&state[i.id]==='refus').length;
+  const critNg=chk.filter(i=>i.weight==='crit'&&state[i.id]==='negociation').length;
 
-function openSummary() {
-  const modal = document.getElementById('modal');
-  const body = document.getElementById('modal-body');
+  let vC,vT,vS;
+  if(critRf>0){vC='v-refus';vT='REFUS';vS=`${critRf} point${critRf>1?'s':''} critique${critRf>1?'s':''} rédhibitoire${critRf>1?'s':''}`;
+  }else if(cnt.refus>0){vC='v-refus';vT='REFUS';vS=`${cnt.refus} point${cnt.refus>1?'s':''} rédhibitoire${cnt.refus>1?'s':''}`;
+  }else if(critNg>0){vC='v-nego';vT='NÉGOCIATION FORTE';vS=`${critNg} point${critNg>1?'s':''} critique${critNg>1?'s':''} à déduire du prix`;
+  }else if(cnt.negociation>0){vC='v-nego';vT='À NÉGOCIER';vS=`${cnt.negociation} point${cnt.negociation>1?'s':''} à chiffrer`;
+  }else if(cnt.aprevoir>0){vC='v-warn';vT='ACCEPTABLE';vS=`${cnt.aprevoir} point${cnt.aprevoir>1?'s':''} d'entretien à prévoir`;
+  }else if(!chk.length){vC='v-warn';vT='EN COURS';vS='Aucun point coché';
+  }else{vC='v-ok';vT='OK';vS='Tous les points vérifiés sont corrects';}
 
-  const allItems = DATA.flatMap(s => s.items.map(i => ({ ...i, sectionTitle: s.title })));
-  const checked = allItems.filter(i => state[i.id] !== null);
-  const total = allItems.length;
-  const counts = { ok: 0, aprevoir: 0, negociation: 0, refus: 0 };
-  checked.forEach(i => counts[state[i.id]]++);
-
-  let verdictClass, verdictText, verdictSub;
-  const worst = checked.reduce((acc, i) => Math.max(acc, impactPriority[state[i.id]]), 0);
-  if (counts.refus > 0) {
-    verdictClass = 'v-refus'; verdictText = 'REFUS'; verdictSub = `${counts.refus} point${counts.refus > 1 ? 's' : ''} rédhibitoire${counts.refus > 1 ? 's' : ''}`;
-  } else if (counts.negociation > 0) {
-    verdictClass = 'v-nego'; verdictText = 'À NÉGOCIER'; verdictSub = `${counts.negociation} point${counts.negociation > 1 ? 's' : ''} de négociation`;
-  } else if (counts.aprevoir > 0) {
-    verdictClass = 'v-nego'; verdictText = 'ACCEPTABLE'; verdictSub = `${counts.aprevoir} point${counts.aprevoir > 1 ? 's' : ''} à prévoir`;
-  } else if (checked.length === 0) {
-    verdictClass = 'v-nego'; verdictText = 'EN COURS'; verdictSub = 'Aucun point coché';
-  } else {
-    verdictClass = 'v-ok'; verdictText = 'OK'; verdictSub = 'Tous les points vérifiés sont corrects';
-  }
-
-  const refusItems = checked.filter(i => state[i.id] === 'refus');
-  const negoItems = checked.filter(i => state[i.id] === 'negociation');
-  const apreItems = checked.filter(i => state[i.id] === 'aprevoir');
-  const okItems = checked.filter(i => state[i.id] === 'ok');
-  const unchecked = allItems.filter(i => state[i.id] === null);
-
-  const renderGroup = (items, impact) => items.map(i => {
-    const optIdx = selectedOptions[i.id];
-    const optText = optIdx !== undefined ? i.options[optIdx].text : '';
-    return `<div class="summary-item">
+  const grp=(items,impact)=>items.map(i=>{
+    const ot=selOpt[i.id]!==undefined?i.options[selOpt[i.id]].t:'';
+    const wc={crit:'w-crit',cost:'w-cost',fin:'w-fin'}[i.weight];
+    return `<div class="sum-item">
       <div style="flex:1">
-        <div class="summary-item-name" style="font-weight:600">${i.title}</div>
-        ${optText ? `<div style="font-size:12px;color:#666;margin-top:2px">${optText}</div>` : ''}
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+          <span class="sum-name">${i.title}</span>
+          <span class="item-weight ${wc}" style="font-size:9px;padding:1px 5px">${WL[i.weight]}</span>
+        </div>
+        ${ot?`<div class="sum-obs">${ot}</div>`:''}
       </div>
-      <div class="summary-item-result impact-${impact}">${impactLabels[impact]}</div>
+      <div class="sum-tag imp-${impact}">${IL[impact]}</div>
     </div>`;
   }).join('');
 
-  body.innerHTML = `
+  const rfI=chk.filter(i=>state[i.id]==='refus');
+  const ngI=chk.filter(i=>state[i.id]==='negociation');
+  const apI=chk.filter(i=>state[i.id]==='aprevoir');
+  const okI=chk.filter(i=>state[i.id]==='ok');
+  const unc=all.filter(i=>state[i.id]===null);
+
+  const alert=critRf>0
+    ?`<div class="alert-refus"><span>⚠</span><span><strong>Point(s) critique(s) rédhibitoire(s)</strong> — châssis, refroidissement ou VIN compromis. Inutile de continuer la négociation.</span></div>`
+    :critNg>0
+    ?`<div class="alert-crit"><span>⚠</span><span><strong>Points critiques dégradés</strong> — coûts de remise en état importants. Négocier une décote significative ou refuser.</span></div>`
+    :'';
+
+  document.getElementById('modal-body').innerHTML=`
     <h2>Avis global — KZJ90</h2>
-    <div class="verdict ${verdictClass}">
-      <div class="verdict-label">${checked.length} / ${total} points vérifiés</div>
-      <div class="verdict-main">${verdictText}</div>
-      <div style="font-size:13px;margin-top:4px;opacity:0.85">${verdictSub}</div>
+    <div class="verdict ${vC}">
+      <div class="verd-lbl">${chk.length} / ${all.length} points vérifiés</div>
+      <div class="verd-main">${vT}</div>
+      <div class="verd-sub">${vS}</div>
     </div>
-    <div class="stats-row">
-      <div class="stat" style="background:var(--refus-bg);color:var(--refus)">
-        <div class="stat-num">${counts.refus}</div><div class="stat-lbl">Refus</div>
-      </div>
-      <div class="stat" style="background:var(--nego-bg);color:var(--nego)">
-        <div class="stat-num">${counts.negociation}</div><div class="stat-lbl">Négo</div>
-      </div>
-      <div class="stat" style="background:var(--warn-bg);color:var(--warn)">
-        <div class="stat-num">${counts.aprevoir}</div><div class="stat-lbl">À prévoir</div>
-      </div>
-      <div class="stat" style="background:var(--ok-bg);color:var(--ok)">
-        <div class="stat-num">${counts.ok}</div><div class="stat-lbl">OK</div>
-      </div>
+    ${alert}
+    <div class="stats">
+      <div class="stat" style="background:var(--rf-bg);color:var(--rf)"><div class="stat-n">${cnt.refus}</div><div class="stat-l">Refus</div></div>
+      <div class="stat" style="background:var(--ng-bg);color:var(--ng)"><div class="stat-n">${cnt.negociation}</div><div class="stat-l">Négo</div></div>
+      <div class="stat" style="background:var(--ap-bg);color:var(--ap)"><div class="stat-n">${cnt.aprevoir}</div><div class="stat-l">À prévoir</div></div>
+      <div class="stat" style="background:var(--ok-bg);color:var(--ok)"><div class="stat-n">${cnt.ok}</div><div class="stat-l">OK</div></div>
     </div>
-    ${refusItems.length ? `<div class="summary-section"><h3>Points rédhibitoires</h3>${renderGroup(refusItems, 'refus')}</div>` : ''}
-    ${negoItems.length ? `<div class="summary-section"><h3>Points à négocier</h3>${renderGroup(negoItems, 'negociation')}</div>` : ''}
-    ${apreItems.length ? `<div class="summary-section"><h3>À prévoir</h3>${renderGroup(apreItems, 'aprevoir')}</div>` : ''}
-    ${okItems.length ? `<div class="summary-section"><h3>Corrects</h3>${renderGroup(okItems, 'ok')}</div>` : ''}
-    ${unchecked.length ? `<div class="summary-section"><h3>Non vérifiés (${unchecked.length})</h3>${unchecked.map(i => `<div class="summary-item unchecked"><div class="summary-item-name">${i.title}</div><div class="summary-item-result" style="background:#E8EDF2;color:#888">—</div></div>`).join('')}</div>` : ''}
+    ${rfI.length?`<div class="sum-sec"><h3>Points rédhibitoires</h3>${grp(rfI,'refus')}</div>`:''}
+    ${ngI.length?`<div class="sum-sec"><h3>À négocier</h3>${grp(ngI,'negociation')}</div>`:''}
+    ${apI.length?`<div class="sum-sec"><h3>À prévoir</h3>${grp(apI,'aprevoir')}</div>`:''}
+    ${okI.length?`<div class="sum-sec"><h3>Points corrects</h3>${grp(okI,'ok')}</div>`:''}
+    ${unc.length?`<div class="sum-sec"><h3>Non vérifiés (${unc.length})</h3>${unc.map(i=>`<div class="sum-item unc"><span class="sum-name">${i.title}</span><span class="sum-tag" style="background:#F0F4F8;color:#888">—</span></div>`).join('')}</div>`:''}
   `;
-
-  modal.classList.add('visible');
+  document.getElementById('modal').classList.add('v');
 }
 
-function closeSummary() {
-  document.getElementById('modal').classList.remove('visible');
-}
-function closeIfOutside(e) {
-  if (e.target === document.getElementById('modal')) closeSummary();
-}
+function closeM(){document.getElementById('modal').classList.remove('v');}
+function bgClose(e){if(e.target===document.getElementById('modal'))closeM();}
 
-render();
+renderAll();
 </script>
 </body>
 </html>
